@@ -5,17 +5,17 @@ let RECENT_SPOTIFY_PLAYBACK_DEVICE_ID; // Caches the device id of the Spotify pl
 let RECENT_SPOTIFY_PLAYBACK_PLAYLIST_ID; // Caches the playlist id of the Spotify player that most recently played shuffled tracks
 let RECENT_SPOTIFY_SHUFFLED_TRACKS = []; // Caches the most recently shuffled tracks from Spotify
 const ARE_CREATED_PLAYLISTS_PUBLIC = false; // Determines whether created playlists are public or not by True Shuffle
-let IS_LOCAL_STORAGE_SUPPORTED = local_storage_supported();
 
 //set checkboxes from cache
 window.addEventListener('DOMContentLoaded', () => {
-	if (IS_LOCAL_STORAGE_SUPPORTED == true) {
-		if (localStorage.getItem('cache_button_state') !== null) {
-			document.getElementById('cache-full-list').checked = true;
-		}
-		if (localStorage.getItem('shuffle_button_state') !== null) {
-			document.getElementById('alt-shuffle').checked = true;
-		}
+	if (localStorage.getItem('cache_button_state') !== null) {
+		document.getElementById('cache-full-list').checked = true;
+	}
+	if (localStorage.getItem('shuffle_button_state') !== null) {
+		document.getElementById('alt-shuffle').checked = true;
+	}
+	if (localStorage.getItem('last_used_playlist_name') !== null) {
+		document.getElementById('choose_playlist').checked = true;
 	}
 });
 
@@ -53,7 +53,7 @@ async function shuffle_and_play() {
 	let cached_playlist;
 	let cache_state = false;
 	
-	if (cache_full_list && IS_LOCAL_STORAGE_SUPPORTED == true) { //cache button pressed and local storage supported
+	if (cache_full_list) { //cache button pressed and local storage supported
 		if (localStorage.getItem('playlist_id') !== null && localStorage.getItem('playlist') !== null) {
 			cached_playlist_id = JSON.parse(localStorage.playlist_id);
 			cached_playlist = JSON.parse(localStorage.playlist);
@@ -64,7 +64,7 @@ async function shuffle_and_play() {
 				localStorage.setItem('cache_button_state', 'True');
 			}
 		}		
-	} else if (IS_LOCAL_STORAGE_SUPPORTED == true) { //remove button state
+	} else { //remove button state
 		localStorage.removeItem('cache_button_state')
 	}
 	if (!cache_state) { //no cache
@@ -90,7 +90,7 @@ async function shuffle_and_play() {
 			alert('Failed to retrieve songs from Spotify. Refresh the page to try again.');
 			return console.log(error);
 		}
-		if (!cache_full_list && IS_LOCAL_STORAGE_SUPPORTED == true) {
+		if (!cache_full_list) {
 			localStorage.removeItem('playlist_id')
 			localStorage.removeItem('playlist')
 		}
@@ -98,7 +98,7 @@ async function shuffle_and_play() {
 	
 	// Filter the retrieved songs to only include songs that are not local
 	songs = songs.filter((song) => !song.local);
-	if (cache_full_list && IS_LOCAL_STORAGE_SUPPORTED == true) {
+	if (cache_full_list) {
 		localStorage.setItem('playlist_id', JSON.stringify(playlist_id));
 		localStorage.setItem('playlist', JSON.stringify(songs));
 	}
@@ -121,14 +121,10 @@ async function shuffle_and_play() {
     if (alt_shuffle) 
     {
         results = get_spread_batch_no_adjacent(shuffled, 200, size);
-		if (IS_LOCAL_STORAGE_SUPPORTED == true) {
-			localStorage.setItem('shuffle_button_state', 'True');
-		}
+		localStorage.setItem('shuffle_button_state', 'True');
     } else {
         results = get_spread_batch(shuffled, 200, size);
-		if (IS_LOCAL_STORAGE_SUPPORTED == true) {
-			localStorage.removeItem('shuffle_button_state')
-		}
+		localStorage.removeItem('shuffle_button_state')
     }
 
 	//results.forEach(element => console.log(element.added_by_id));
