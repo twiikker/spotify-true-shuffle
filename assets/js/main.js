@@ -14,9 +14,6 @@ window.addEventListener('DOMContentLoaded', () => {
 	if (localStorage.getItem('shuffle_button_state') !== null) {
 		document.getElementById('alt-shuffle').checked = true;
 	}
-	if (localStorage.getItem('last_used_playlist_name') !== null) {
-		document.getElementById('choose_playlist').checked = true;
-	}
 });
 
 
@@ -55,7 +52,7 @@ async function shuffle_and_play() {
 	
 	if (cache_full_list) { //cache button pressed and local storage supported
 		if (localStorage.getItem('playlist_id') !== null && localStorage.getItem('playlist') !== null) {
-			cached_playlist_id = JSON.parse(localStorage.playlist_id);
+			cached_playlist_id = localStorage.playlist_id;
 			cached_playlist = JSON.parse(localStorage.playlist);
 			if (cached_playlist_id == playlist_id) {//check if selected playlist is same as cached one
 				//run here if cache is OK
@@ -99,7 +96,7 @@ async function shuffle_and_play() {
 	// Filter the retrieved songs to only include songs that are not local
 	songs = songs.filter((song) => !song.local);
 	if (cache_full_list) {
-		localStorage.setItem('playlist_id', JSON.stringify(playlist_id));
+		localStorage.setItem('playlist_id', playlist_id);
 		localStorage.setItem('playlist', JSON.stringify(songs));
 	}
 	
@@ -198,12 +195,12 @@ async function shuffle_and_play() {
             ui_render_play_button('Updating Temporary Playlist...', false);
 			console.log('shuffled playlist length = ' + uris.length);
 			await SPOTIFY_API.set_playlist_tracks(temporary.id, uris.splice(0,50));
-			await async_wait(1000);
+			await async_wait(500);
 			console.log('sleeping for second');
 			while (uris.length > 50) {
 				console.log('shuffled playlist length = ' + uris.length);
 				await SPOTIFY_API.add_playlist_tracks(temporary.id, uris.splice(0,50));
-				await async_wait(1000);
+				await async_wait(500);
 				console.log('sleeping for second');
 			}
 			if (uris !== 0) {
@@ -342,12 +339,12 @@ async function save_to_playlist() {
         ui_render_save_button('Updating Playlist...', false);
 		console.log('shuffled playlist length = ' + uris.length);
 		await SPOTIFY_API.set_playlist_tracks(playlist.id, uris.splice(0,50));
-		await async_wait(1000);
+		await async_wait(500);
 		console.log('sleeping for second');
 		while (uris.length > 50) {
 			console.log('shuffled playlist length = ' + uris.length);
 			await SPOTIFY_API.add_playlist_tracks(playlist.id, uris.splice(0,50));
-			await async_wait(1000);
+			await async_wait(500);
 			console.log('sleeping for second');
 		}
 		if (uris !== 0) {
@@ -519,6 +516,9 @@ async function load_application() {
     document.querySelector('.container').classList.add('authenticated');
     document.getElementById('application_section').setAttribute('style', '');
     document.getElementById('loader_container').setAttribute('style', 'display: none;');
+	if (localStorage.getItem('playlist_id') !== null) {
+		document.getElementById("choose_playlist").value = localStorage.playlist_id;
+	}
 }
 
 window.addEventListener('load', () => {
