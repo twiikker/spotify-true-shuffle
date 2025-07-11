@@ -503,6 +503,14 @@ async function load_application() {
 
         // Render the devices in the UI selector
         document.getElementById('choose_playlist').innerHTML = rendered.join('\n');
+		if (localStorage.getItem('playlist_id') !== null) {
+			const playlistIds = Object.keys(playlists);
+			if (playlistIds.includes(localStorage.playlist_id)) {
+				document.getElementById('choose_playlist').value = localStorage.playlist_id;
+			} else {
+				console.log('saved playlist id does not exist anymore')
+			}
+		}
     } catch (error) {
         log('ERROR', 'Failed to retrieve Spotify playlists.');
         loading_message.innerText = 'Failed to retrieve Spotify playlists. Refresh the page to try again.';
@@ -516,9 +524,7 @@ async function load_application() {
     document.querySelector('.container').classList.add('authenticated');
     document.getElementById('application_section').setAttribute('style', '');
     document.getElementById('loader_container').setAttribute('style', 'display: none;');
-	if (localStorage.getItem('playlist_id') !== null) {
-		document.getElementById("choose_playlist").value = localStorage.playlist_id;
-	}
+
 }
 
 window.addEventListener('load', () => {
